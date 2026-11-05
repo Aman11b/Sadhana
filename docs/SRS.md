@@ -2,13 +2,9 @@
 
 ## Sadhana Tracker
 
-| Document Property | Value                          |
-| ----------------- | ------------------------------ |
-| Document Version  | 0.2.0                          |
-| Last Updated      | 2026-11-05                     |
-| Status            | Requirements Draft             |
-| Product           | Sadhana Tracker                |
-| Initial Users     | One explicitly authorized user |
+**Document Version:** 0.3.0  
+**Last Updated:** 2026-11-05  
+**Status:** Draft — Requirements Finalization
 
 ---
 
@@ -16,677 +12,672 @@
 
 ## 1.1 Purpose
 
-This document defines the functional and non-functional requirements of Sadhana Tracker.
+Sadhana Tracker is a private web application designed to record, organize, and review personal spiritual practices.
 
-It serves as the primary requirements reference for architecture, database design, implementation, and testing.
+It supports daily mantra japa, stotra recitations, personal observations, lifetime practice statistics, and structured Anushthan commitments.
 
-The application is a private spiritual-practice journal designed to record daily mantra japa, stotra recitations, personal comments, and Anushthan commitments.
+The application must maintain accurate historical records and prevent duplication of practice data across different views.
 
-## 1.2 Product Objectives
+## 1.2 Scope
 
-The application should:
+The initial version will include:
 
-- Maintain an accurate historical record of spiritual practices.
-- Track daily counts for multiple mantras and stotras.
-- Calculate lifetime totals automatically.
-- Support time-bound Anushthan commitments.
-- Track Anushthan progress independently for each selected practice.
-- Allow regular and Anushthan practice on the same date.
-- Provide a calendar-based historical view.
-- Protect personal data through authentication and database-level authorization.
-- Remain maintainable and reliable over many years.
+- User authentication.
+- Mantra and stotra libraries.
+- Daily practice tracking.
+- Regular Upasana and Anushthan attribution.
+- Daily comments and observations.
+- Calendar-based navigation.
+- Anushthan creation and progress tracking.
+- Dynamic target distribution.
+- Anushthan history and reports.
+- Lifetime practice statistics.
+- User settings.
+- Optional Panchang integration, subject to provider evaluation.
 
 ## 1.3 Intended User
 
-The initial version is intended for one explicitly authorized user.
+The initial application is designed for private, individual use.
 
-However, the database will include ownership fields to maintain proper data isolation and support possible future expansion.
+The database and authorization model must still enforce user-level data isolation.
 
 ---
 
-# 2. Scope
+# 2. Terminology
 
-## 2.1 Included in Version 1
+| Term           | Definition                                                                        |
+| -------------- | --------------------------------------------------------------------------------- |
+| Sadhana        | Personal spiritual practice                                                       |
+| Mantra         | A mantra recorded in the practice library                                         |
+| Japa           | Repetition of a mantra                                                            |
+| Mala           | A unit consisting of 108 mantra repetitions                                       |
+| Stotra         | A devotional hymn or prayer                                                       |
+| Upasana        | Regular daily practice outside an Anushthan commitment                            |
+| Anushthan      | A defined commitment to complete specified practice targets within a duration     |
+| Daily Record   | The common record associated with a user's civil calendar date                    |
+| Daily Entry    | An individual mantra or stotra practice record                                    |
+| Target         | The committed quantity for an individual practice                                 |
+| Recommendation | The dynamically calculated daily amount suggested to achieve the remaining target |
 
-- User authentication.
-- Mantra library management.
-- Stotra library management.
-- Daily practice recording.
-- Daily comments.
-- Lifetime mantra and stotra totals.
-- Regular Upasana tracking.
-- Anushthan creation and tracking.
-- Dynamic Anushthan target recommendations.
-- Calendar and historical records.
+---
+
+# 3. User Authentication and Authorization
+
+## 3.1 Authentication
+
+- Users will authenticate through Supabase Auth.
+- No custom password storage table will be created.
+- Authenticated sessions must be validated for protected operations.
+
+## 3.2 Authorization
+
+- Each user's data must remain isolated.
+- PostgreSQL Row Level Security (RLS) must enforce user-level access.
+- Server-side authorization must be performed for sensitive operations.
+- The Supabase service role key must never be exposed to the browser.
+
+## 3.3 Access Control
+
+Users may access and modify only their own:
+
+- Mantras.
+- Stotras.
+- Daily records.
+- Daily practice entries.
+- Anushthans.
 - User settings.
-- Panchang/Tithi display, provided a suitable provider is verified.
-- Historical count protection.
-- Database-level access control.
-
-## 2.2 Excluded from Version 1
-
-- Multiple simultaneously ongoing Anushthans.
-- Anushthan extensions.
-- Missed-day recovery workflows.
-- Incomplete Anushthan management.
-- Historical practice-count editing.
-- Offline-first synchronization.
-- Multi-user collaboration.
-- Public profiles or social features.
-- Advanced reminder and notification systems.
 
 ---
 
-# 3. Domain Terminology
+# 4. Mantra Library
 
-| Term            | Meaning                                                                        |
-| --------------- | ------------------------------------------------------------------------------ |
-| Mantra          | A registered mantra tracked through japa                                       |
-| Mala            | One complete round of 108 mantra repetitions                                   |
-| Japa            | Repetition of a mantra                                                         |
-| Stotra          | A registered devotional hymn tracked through complete recitations              |
-| Regular Upasana | Normal daily spiritual practice                                                |
-| Anushthan       | A commitment to perform a specified amount of practice within a defined period |
-| Daily Record    | The shared record associated with one calendar date                            |
-| Daily Entry     | A specific mantra or stotra count recorded within a daily record               |
-| Tithi           | A lunar day in the Hindu Panchang system                                       |
+## 4.1 Functional Requirements
 
----
+The system shall allow users to:
 
-# 4. Functional Requirements
+- Register a mantra.
+- View registered mantras.
+- Edit mantra information.
+- Archive a mantra.
+- View lifetime practice totals.
 
-## 4.1 Mantra Management
+## 4.2 Mantra Data
 
-The application shall provide a separate mantra library.
+The exact descriptive fields will be finalized during database design.
 
-### Requirements
+The library must support a stable identifier and ownership association.
 
-- The user can create a mantra.
-- The user can view registered mantras.
-- The user can edit mantra details.
-- The user can archive/deactivate a mantra.
-- Each mantra has a unique identifier.
-- Each mantra belongs to the authenticated user.
-- Historical entries must remain available when a mantra is archived.
+## 4.3 Archival
 
-### Mala Rules
-
-One mala always contains 108 repetitions.
-
-This is a fixed domain rule in v1.
-
-The user enters daily practice in whole malas.
-
-The application calculates:
-
-`total_repetitions = total_malas × 108`
-
-Mala size is not configurable and does not need to be stored in the mantra table.
-
-### Lifetime Totals
-
-For every mantra, the application shall calculate:
-
-- Total malas completed.
-- Total repetitions completed.
-
-These totals include both Regular Upasana and Anushthan entries.
-
-The totals must be derived from daily entries rather than manually incremented counters.
+- Archiving must not delete historical practice entries.
+- Archived mantras must remain identifiable in historical records.
+- The system must prevent invalid new selections of archived practices where applicable.
 
 ---
 
-## 4.2 Stotra Management
+# 5. Stotra Library
 
-The application shall provide a separate stotra library.
+## 5.1 Functional Requirements
 
-### Requirements
+The system shall allow users to:
 
-- The user can create a stotra.
-- The user can view registered stotras.
-- The user can edit stotra details.
-- The user can archive/deactivate a stotra.
-- Each stotra has a unique identifier.
-- Each stotra belongs to the authenticated user.
-- Historical entries remain available when a stotra is archived.
+- Register a stotra.
+- View registered stotras.
+- Edit stotra information.
+- Archive a stotra.
+- View lifetime recitation totals.
 
-### Daily Input
+## 5.2 Archival
 
-The user records the number of complete stotra recitations.
-
-### Lifetime Totals
-
-The application calculates the total recitations from all daily stotra entries.
-
-Both Regular Upasana and Anushthan recitations contribute to this total.
+- Archiving must not delete historical recitations.
+- Historical records must continue displaying the original stotra reference.
 
 ---
 
-## 4.3 Daily Record Management
+# 6. Daily Records
 
-A single common daily record shall exist for each user and civil date.
+## 6.1 Daily Record Structure
 
-### Daily Record Fields
+The application shall maintain one common daily record per user and civil calendar date.
 
-- Record ID.
-- User ID.
-- Record date.
-- Comment.
-- Created timestamp.
-- Updated timestamp.
+A daily record contains:
 
-### Daily Entry Details
+- User association.
+- Civil calendar date.
+- Optional shared comment.
+- Creation timestamp.
+- Update timestamp.
 
-Mantra and stotra entries shall be stored in separate tables.
+## 6.2 Record Creation
 
-A daily record may contain:
+- Opening a date must not automatically create a database record.
+- A daily record is created when actual practice data or a comment is saved.
+- A date without saved activity must remain empty.
+- Zero-count records must not be generated automatically.
 
-- Multiple mantra entries.
-- Multiple stotra entries.
-- Regular Upasana entries.
-- Anushthan entries.
-- A mixture of Regular Upasana and Anushthan entries.
+## 6.3 Daily Comments
 
-### Example
+- Each date has one shared optional comment.
+- The comment is accessible from both the main calendar and Anushthan calendar.
+- Editing a comment must update the existing daily record.
+- Historical comments remain editable.
 
-November 5:
+## 6.4 Daily Record Uniqueness
 
-| Practice | Category    |   Daily Count |
-| -------- | ----------- | ------------: |
-| Mantra A | Regular     |       2 malas |
-| Mantra B | Anushthan A |       5 malas |
-| Stotra A | Regular     |  1 recitation |
-| Stotra B | Anushthan A | 3 recitations |
+The database must enforce:
 
-All entries belong to the same daily record.
+`UNIQUE(user_id, practice_date)`
 
-The date has one shared comment.
+This prevents multiple daily records for the same user and date.
 
-### Entry Attribution Rules
+## 6.5 Shared Records
 
-Every individual mantra or stotra entry must belong to exactly one category:
+The main calendar and Anushthan calendar must reference the same daily record.
 
-1. Regular Upasana.
-2. Anushthan.
-
-The database representation shall be:
-
-- `anushthan_id = NULL`: Regular Upasana.
-- `anushthan_id = Anushthan ID`: Anushthan practice.
-
-The same mantra or stotra cannot be entered twice on the same date.
-
-For example, Mantra A cannot have one Regular entry and another Anushthan entry on November 5.
-
-However, Mantra A can be Regular while Stotra A belongs to an Anushthan on the same date.
-
-### Empty Dates
-
-- Dates without practice entries remain empty.
-- The application must not create automatic zero-count entries.
-- Opening a date must not automatically save a daily record.
-- A daily record should be created when the user actually saves practice data or a comment.
+Opening the same date from either view must not create duplicate records or duplicate practice counts.
 
 ---
 
-## 4.4 Daily Comments
+# 7. Daily Mantra Entries
 
-Each daily record contains one optional comment.
+## 7.1 Recording
 
-Comments may contain:
+- Daily mantra practice shall be recorded in whole malas.
+- One mala always equals 108 repetitions.
+- Partial malas are not supported in the initial version.
+- A mantra entry must reference a valid daily record and mantra.
+- An entry must be attributed to Regular Upasana or one Anushthan.
 
-- Personal observations.
-- Practice experiences.
-- Reflections.
-- Other notes related to that date.
+## 7.2 Attribution
 
-### Rules
-
-- One comment per daily record.
-- The comment is shared across all practices recorded on that date.
-- The same comment appears when opening the date through the main calendar or an Anushthan calendar.
-- Historical comments may be edited.
-- Comments must not be duplicated in Anushthan tables.
-
----
-
-## 4.5 Historical Record Integrity
-
-Practice counts are intended to be permanent historical records.
-
-### Rules
-
-- Counts can be entered or corrected on the current date.
-- Once the date has passed, mantra and stotra counts become read-only.
-- Historical comments may still be edited.
-- The restriction must be enforced on the server/database side, not only through frontend controls.
-- The configured user timezone determines the current-date boundary.
-
-The application must not allow ordinary users to bypass historical count protection through direct API requests.
-
----
-
-# 5. Anushthan Management
-
-## 5.1 Definition
-
-An Anushthan represents a commitment to perform a specified amount of one or more spiritual practices within a defined period.
+- `anushthan_id = NULL` represents Regular Upasana.
+- A non-null `anushthan_id` represents practice performed under that Anushthan.
+- The same mantra cannot have separate Regular and Anushthan entries on the same date.
+- Different practices on the same date may have different attribution.
 
 Example:
 
-A user commits to completing 1,25,000 repetitions of a mantra within 40 days.
+| Practice | Attribution     |
+| -------- | --------------- |
+| Mantra A | Regular Upasana |
+| Mantra B | Anushthan 1     |
+| Stotra A | Regular Upasana |
+| Stotra B | Anushthan 1     |
 
-The application tracks the commitment and its daily progress.
+## 7.3 Uniqueness
 
-## 5.2 Supported Combinations
+The database shall enforce:
+
+`UNIQUE(daily_record_id, mantra_id)`
+
+## 7.4 Lifetime Calculation
+
+Total mantra malas:
+
+`SUM(daily_mantra_entries.malas_completed)`
+
+Total mantra repetitions:
+
+`Total malas × 108`
+
+Lifetime totals include Regular Upasana and Anushthan entries.
+
+---
+
+# 8. Daily Stotra Entries
+
+## 8.1 Recording
+
+- Stotra practice shall be recorded in complete recitations.
+- Partial recitations are not supported.
+- Every entry must reference a valid daily record and stotra.
+- Every entry must be attributed to Regular Upasana or one Anushthan.
+
+## 8.2 Uniqueness
+
+The database shall enforce:
+
+`UNIQUE(daily_record_id, strotra_id)`
+
+## 8.3 Lifetime Calculation
+
+Total stotra recitations:
+
+`SUM(daily_strotra_entries.recitations_completed)`
+
+Lifetime totals include Regular Upasana and Anushthan entries.
+
+---
+
+# 9. Regular Upasana
+
+Regular Upasana represents daily practice not associated with an Anushthan.
+
+Requirements:
+
+- Regular mantra entries have `anushthan_id = NULL`.
+- Regular stotra entries have `anushthan_id = NULL`.
+- Regular practice contributes to lifetime totals.
+- Regular practice can coexist with Anushthan practice on the same date for different practices.
+
+---
+
+# 10. Anushthan Management
+
+## 10.1 Definition
+
+An Anushthan represents a commitment to complete specified quantities of one or more practices within a defined duration.
 
 An Anushthan may contain:
 
-- One mantra only.
-- Multiple mantras only.
-- One stotra only.
-- Multiple stotras only.
-- One or more mantras and one or more stotras.
+- One or more mantras.
+- One or more stotras.
+- A combination of mantras and stotras.
 
 At least one practice must be selected.
 
-There is no requirement to select both a mantra and a stotra.
+## 10.2 Creation
 
-## 5.3 Practice Selection
+The user shall provide:
 
-During Anushthan creation, the user can:
+- Anushthan title or name.
+- Start date.
+- End date.
+- One or more selected mantras and their individual targets.
+- One or more selected stotras and their individual targets.
 
-1. Select an existing mantra from the mantra library.
-2. Register a new mantra without leaving the creation flow.
-3. Select an existing stotra from the stotra library.
-4. Register a new stotra without leaving the creation flow.
+The user may:
 
-Newly registered practices must be saved as normal records in their respective master tables.
+- Select an existing mantra or stotra.
+- Register a new mantra or stotra directly during Anushthan creation.
 
-They must then be associated with the Anushthan through the relevant mapping table.
+A newly registered practice must be saved in its normal library table and linked through the relevant Anushthan mapping table.
 
-## 5.4 Individual Targets
+## 10.3 Independent Targets
 
-Each selected practice has its own target.
+Every selected practice must have its own independent target.
 
-Targets are independent and are not combined across different practices.
+Mantra target:
+
+- Expressed in whole malas.
+
+Stotra target:
+
+- Expressed in complete recitations.
 
 Example:
 
-| Practice |               Target | Duration |
-| -------- | -------------------: | -------: |
-| Mantra A | 1,25,000 repetitions |  40 days |
-| Mantra B |   50,000 repetitions |  40 days |
-| Stotra A |       40 recitations |  40 days |
+| Practice |         Target |
+| -------- | -------------: |
+| Mantra A |    1,200 malas |
+| Mantra B |      500 malas |
+| Stotra A | 40 recitations |
+| Stotra B | 20 recitations |
 
-The application tracks progress separately for each commitment.
+Targets must never be combined into one shared quantity.
 
-### Mantra Targets
+## 10.4 Ongoing Anushthan Restriction
 
-Mantra targets are expressed in total repetitions.
+Only one ongoing Anushthan may exist for a user.
 
-Daily input remains in malas.
+The restriction must be enforced at the database/server boundary, not only in the frontend.
 
-The application converts daily malas into repetitions using the fixed value of 108.
+Concurrent creation requests must not allow multiple ongoing Anushthans.
 
-### Stotra Targets
+## 10.5 Practice Association
 
-Stotra targets are expressed in complete recitations.
+Each Anushthan practice must be associated through its mapping table.
 
-Daily input remains in complete recitations.
+Daily entries attributed to an Anushthan must satisfy all of the following:
 
----
+- The Anushthan belongs to the authenticated user.
+- The selected practice is included in that Anushthan.
+- The daily entry date is within the Anushthan's permitted duration.
+- The Anushthan is in a state that permits recording.
 
-## 5.5 Anushthan Lifecycle
-
-An Anushthan contains:
-
-- Anushthan ID.
-- User ID.
-- Name.
-- Start date.
-- Duration.
-- End date.
-- Status.
-- Creation timestamp.
-- Updated timestamp.
-
-### Single Ongoing Anushthan Rule
-
-Only one Anushthan may be ongoing at a time.
-
-If an Anushthan is already ongoing:
-
-- The user cannot create another Anushthan.
-- The application must prevent overlapping commitments.
-- The restriction must be enforced beyond the frontend.
-
-The database/server must protect against concurrent creation requests.
-
-### V1 Assumption
-
-For the initial version, the application assumes that the user will complete the Anushthan within the committed duration.
-
-The following are deferred:
-
-- Extending the duration.
-- Continuing an incomplete Anushthan beyond its end date.
-- Missed-day recovery workflows.
-- Detailed incomplete-vow management.
+The database and server-side operations must enforce these rules.
 
 ---
 
-## 5.6 Anushthan Daily Tracking
+# 11. Anushthan Target Distribution
 
-Anushthan practice is recorded through the same common daily record used by Regular Upasana.
+## 11.1 Initial Distribution
 
-An Anushthan does not maintain a duplicate daily count table.
+The application shall distribute each practice's target as evenly as possible across the Anushthan duration.
 
-Each daily practice entry contains an optional `anushthan_id`.
+The distribution uses whole-number quantities.
 
-When populated, this associates that particular entry with the corresponding Anushthan.
+Example:
 
-### Example
+Target: 100 malas  
+Duration: 3 days
 
-On November 5:
+| Day   | Recommended malas |
+| ----- | ----------------: |
+| Day 1 |                34 |
+| Day 2 |                33 |
+| Day 3 |                33 |
 
-- Mantra A: 2 malas under Regular Upasana.
-- Mantra B: 5 malas under Anushthan A.
-- Stotra A: 3 recitations under Anushthan A.
+## 11.2 Balanced Distribution Rule
 
-All entries belong to the same daily record.
+For a remaining target `R` and remaining days `D`:
 
-The Anushthan tracker retrieves only entries associated with its own Anushthan ID.
+- Base allocation = `floor(R / D)`
+- Remainder = `R % D`
+- The earliest remaining days receive one additional unit until the remainder is exhausted.
 
-The main calendar displays all entries for the date.
+This ensures:
 
----
+- Whole-number recommendations.
+- Balanced daily allocation.
+- Exact preservation of the total target.
+- No recommendation exceeds the remaining commitment.
 
-## 5.7 Anushthan Progress
+The same principle applies to stotra recitation targets.
 
-Progress is calculated from daily entries.
+## 11.3 Dynamic Redistribution
 
-For each mantra:
+After a daily entry is successfully saved:
 
-`completed_repetitions = sum(malas_completed × 108)`
+1. Calculate actual completed quantity.
+2. Calculate remaining target.
+3. Calculate remaining eligible days.
+4. Recalculate balanced daily recommendations.
 
-For each stotra:
+Example:
 
-`completed_recitations = sum(recitations_completed)`
+Original target: 100 malas  
+Original duration: 10 days
 
-Only entries associated with the relevant Anushthan are included in its progress.
+Suppose 35 malas are completed on Day 1.
 
-Lifetime practice totals include both Regular and Anushthan entries.
+Remaining target: 65 malas  
+Remaining days: 9
 
-No count is copied into the Anushthan master or mapping tables.
+The application redistributes the remaining 65 malas across those nine days.
 
----
+## 11.4 Progress Calculation
 
-## 5.8 Dynamic Daily Target Distribution
+For each practice:
 
-The application shall distribute each commitment as evenly as possible across the Anushthan duration.
+`Remaining target = Original target - Actual completed quantity`
 
-### Initial Calculation
+`Achievement percentage = (Actual completed quantity / Original target) × 100`
 
-The initial daily recommendation is calculated using:
+The system must not count entries associated with other Anushthans or Regular Upasana toward this Anushthan's progress.
 
-`remaining_target / total_duration_days`
+## 11.5 Recommendation Versus Restriction
 
-### Dynamic Recalculation
+Daily recommendations are guidance, not limits.
 
-After the user saves a daily entry:
+Users may complete more or fewer malas/recitations than recommended.
 
-1. Calculate the completed amount.
-2. Subtract it from the original commitment.
-3. Calculate the remaining number of days.
-4. Redistribute the remaining target across those days.
-5. Display the updated daily recommendation.
-
-### Rules
-
-- The original target cannot change through daily progress.
-- The original duration remains fixed.
-- Daily recommendations are not restrictions.
-- Completing more than the suggested amount reduces the remaining recommendation.
-- Completing less increases the remaining recommendation.
-- The system must not silently modify the original commitment.
-
-### Mathematical Constraint
-
-Mantra input is measured in whole malas, while targets are expressed in repetitions.
-
-Because one mala equals 108 repetitions, some targets cannot be represented exactly using whole malas.
-
-For example, 1,25,000 repetitions are not divisible by 108.
-
-The exact handling of residual repetitions and completion semantics must be finalized before implementation.
+The original target and duration remain unchanged.
 
 ---
 
-# 6. Calendar and Dashboard
+# 12. Anushthan History and Reports
 
-## 6.1 Dashboard
+## 12.1 History
 
-The main dashboard should display:
+Every Anushthan must become part of Anushthan History after its end date, regardless of whether the committed target was completed.
 
-- Today's civil date.
-- Tithi/Panchang information when available.
-- Today's recorded practices.
-- An empty state when no practice has been recorded.
-- Ongoing Anushthan information.
-- Monthly calendar.
+No manual completion confirmation is required.
 
-## 6.2 Main Calendar
+No separate Pending Review state is required.
 
-The calendar shall support:
+## 12.2 Historical Records
 
-- Month navigation.
-- Year navigation.
-- Historical daily record access.
-- Distinct visual markers for Regular Upasana and Anushthan activity.
-- Empty dates.
-- Opening a daily record by selecting a date.
+The historical Anushthan must preserve:
 
-The calendar cannot navigate earlier than `practice_start_date`.
-
-## 6.3 Anushthan Calendar
-
-The Anushthan detail page shall display:
-
+- Original commitment.
+- Selected practices.
+- Individual targets.
 - Start date.
 - End date.
-- Duration.
-- Individual practice targets.
-- Completed amounts.
-- Remaining amounts.
-- Daily recommended targets.
-- A calendar/tracker covering the entire Anushthan duration.
+- Actual daily entries.
+- Total completed quantities.
+- Remaining quantities.
+- Achievement percentages.
 
-Selecting a date opens the same shared daily record used by the main calendar.
+## 12.3 Final Report
 
-The Anushthan calendar must not create duplicate daily records or comments.
+Opening a historical Anushthan shall display its final report.
 
----
+Example:
 
-# 7. First-Use Application Lifecycle
+| Metric           |     Value |
+| ---------------- | --------: |
+| Committed target | 100 malas |
+| Actual completed |  90 malas |
+| Remaining        |  10 malas |
+| Achievement      |       90% |
+| Duration         |   10 days |
 
-The application's real practice history begins when the user saves their first genuine practice record.
+For a mixed Anushthan, each mantra and stotra must have its own report.
 
-### Rules
+## 12.4 Historical Integrity
 
-1. The first genuine record must use the current date.
-2. The first record must be saved successfully.
-3. Its date initializes `user_settings.practice_start_date`.
-4. The start date is initialized only once.
-5. Calendar navigation cannot go earlier than this date.
-6. Test data must not initialize the production start date.
-7. Development and production must use separate environments/databases.
-
-The initialization should be atomic with the first successful daily record save.
-
-If the record save fails, the application must not initialize the start date.
+- Historical records must not be automatically extended.
+- Original target and duration must be preserved.
+- Historical progress must be based on actual saved daily entries.
+- The application must not automatically label an Anushthan as Completed or Incomplete based on target fulfillment.
+- History membership is determined by the Anushthan's lifecycle/end date, not a manually selected outcome.
 
 ---
 
-# 8. Panchang and Tithi
+# 13. Calendar
 
-The application is intended to display Hindu Tithi information.
+## 13.1 Main Calendar
 
-However, Tithi calculations depend on:
+The main calendar shall:
 
-- Geographic location.
-- Timezone.
-- Astronomical calculation.
-- Panchang convention.
+- Display the user's practice history.
+- Allow navigation between dates.
+- Show dates with saved practice records.
+- Open the corresponding daily record.
+- Display daily comments and practice entries.
 
-The application must not assume a location or convention without confirmation.
+## 13.2 Anushthan Calendar
 
-Before implementation, a suitable provider must be evaluated for:
+The Anushthan calendar shall:
 
-- Data accuracy.
+- Display the complete Anushthan duration.
+- Show daily practice associated with that Anushthan.
+- Open the same daily record used by the main calendar.
+- Display shared daily comments.
+- Show per-practice progress and recommendations.
+
+## 13.3 Empty Dates
+
+Dates without saved activity must remain empty.
+
+The application must not create zero-count records merely because a date is displayed.
+
+---
+
+# 14. Editing Rules
+
+## 14.1 Current Date
+
+Daily counts may be corrected or edited on the current practice date.
+
+## 14.2 Past Dates
+
+Once a practice date has passed:
+
+- Mantra counts become read-only.
+- Stotra counts become read-only.
+- Historical comments remain editable.
+
+## 14.3 Enforcement
+
+These rules must be enforced server-side and at the database boundary where applicable.
+
+Frontend-disabled inputs alone are insufficient.
+
+The exact timezone and date-boundary policy remains to be finalized.
+
+---
+
+# 15. First-Use Lifecycle
+
+## 15.1 Initialization
+
+The application's practice history begins on the date of the user's first genuine practice record.
+
+## 15.2 Requirements
+
+- The first genuine practice record must be for the current date.
+- The system must not allow a backdated first record.
+- `user_settings.practice_start_date` is initialized only once.
+- Initialization must occur atomically with the successful first daily record save.
+- Opening the calendar must not initialize the practice start date.
+- Test records must not initialize production data.
+
+## 15.3 Calendar Boundary
+
+The earliest accessible practice calendar date is the initialized practice start date.
+
+The practice start date is not editable through ordinary settings.
+
+---
+
+# 16. User Settings
+
+The proposed `user_settings` table will contain:
+
+| Field                 | Purpose                                         |
+| --------------------- | ----------------------------------------------- |
+| `user_id`             | Unique user reference                           |
+| `practice_start_date` | First genuine practice date; initially nullable |
+| `timezone`            | User's civil date/timezone configuration        |
+| `panchang_location`   | Location used for Panchang calculations         |
+| `created_at`          | Creation timestamp                              |
+| `updated_at`          | Last update timestamp                           |
+
+Timezone and Panchang location are separate settings.
+
+Application secrets, API keys, and deployment configuration must be stored in environment variables or deployment secrets, not user settings.
+
+The fixed mala size of 108 must not be configurable.
+
+---
+
+# 17. Panchang Integration
+
+Panchang display is a planned feature.
+
+The implementation must consider:
+
+- Provider reliability.
 - API availability.
-- Location support.
-- Calculation convention.
-- API limits.
-- Cost.
-- Long-term reliability.
+- Location-dependent calculations.
+- Timezone handling.
+- Relevant regional/traditional conventions.
 
-If a verified source is unavailable, the application displays only the civil date.
+The provider, convention, and location-selection workflow must be decided before implementation.
 
----
-
-# 9. User Settings
-
-A dedicated `user_settings` table stores user-level preferences.
-
-Candidate fields:
-
-| Field                 | Description                               |
-| --------------------- | ----------------------------------------- |
-| `user_id`             | Associated authenticated user             |
-| `practice_start_date` | Initialized from the first genuine record |
-| `timezone`            | User's timezone                           |
-| `panchang_location`   | Selected Panchang location                |
-| `created_at`          | Creation timestamp                        |
-| `updated_at`          | Last modification timestamp               |
-
-Additional preferences may be introduced later.
-
-### Environment Configuration
-
-Environment-specific configuration must not be stored in the user settings table.
-
-Examples:
-
-- Supabase URL.
-- API keys.
-- Authentication secrets.
-- External provider credentials.
-
-These belong in environment variables and deployment secrets.
+The application must not display fabricated or unverified Panchang information.
 
 ---
 
-# 10. Proposed Database Schema
+# 18. Proposed Database Design
 
-The following is a conceptual relational model. Exact SQL types, foreign keys, indexes, triggers, and security policies will be finalized during database design.
+The initial database design consists of nine application tables.
 
-## 10.1 `mantras`
+Authentication is provided separately by Supabase Auth.
 
-Stores registered mantras.
+## 18.1 `mantras`
 
-Candidate fields:
+Stores the user's mantra library.
 
-- `id`
-- `user_id`
-- `name`
-- `is_active`
-- `created_at`
-- `updated_at`
-
-Mala size is not stored because it is permanently fixed at 108 in v1.
-
-## 10.2 `strotras`
-
-Stores registered stotras.
-
-Candidate fields:
+Proposed fields:
 
 - `id`
 - `user_id`
-- `name`
-- `is_active`
+- Descriptive mantra fields
+- `is_archived`
 - `created_at`
 - `updated_at`
 
-## 10.3 `anushthans`
+## 18.2 `strotras`
 
-Stores Anushthan metadata.
+Stores the user's stotra library.
 
-Candidate fields:
+Proposed fields:
+
+- `id`
+- `user_id`
+- Descriptive stotra fields
+- `is_archived`
+- `created_at`
+- `updated_at`
+
+## 18.3 `anushthans`
+
+Stores Anushthan commitments.
+
+Proposed fields:
 
 - `id`
 - `user_id`
 - `name`
 - `start_date`
-- `duration_days`
 - `end_date`
-- `status`
 - `created_at`
 - `updated_at`
 
-## 10.4 `anushthan_mantras`
+The lifecycle state may be derived from the dates and whether the Anushthan is active. A separate history table is not required.
+
+## 18.4 `anushthan_mantras`
 
 Maps mantras to Anushthans.
 
-Candidate fields:
+Proposed fields:
 
 - `id`
 - `anushthan_id`
 - `mantra_id`
-- `target_repetitions`
+- `target_malas`
 
-Unique constraint:
+Each mapping represents one independent mantra commitment.
 
-`(anushthan_id, mantra_id)`
-
-## 10.5 `anushthan_strotras`
+## 18.5 `anushthan_strotras`
 
 Maps stotras to Anushthans.
 
-Candidate fields:
+Proposed fields:
 
 - `id`
 - `anushthan_id`
 - `strotra_id`
 - `target_recitations`
 
-Unique constraint:
+Each mapping represents one independent stotra commitment.
 
-`(anushthan_id, strotra_id)`
+## 18.6 `daily_records`
 
-## 10.6 `daily_records`
+Stores one common daily record per user and civil date.
 
-Stores one common daily record per user and date.
-
-Candidate fields:
+Proposed fields:
 
 - `id`
 - `user_id`
-- `record_date`
+- `practice_date`
 - `comment`
 - `created_at`
 - `updated_at`
 
 Unique constraint:
 
-`(user_id, record_date)`
+`UNIQUE(user_id, practice_date)`
 
-## 10.7 `daily_mantra_entries`
+## 18.7 `daily_mantra_entries`
 
-Stores daily mantra counts.
+Stores daily mantra practice.
 
-Candidate fields:
+Proposed fields:
 
 - `id`
 - `daily_record_id`
@@ -694,20 +685,17 @@ Candidate fields:
 - `anushthan_id` (nullable)
 - `malas_completed`
 - `created_at`
+- `updated_at`
 
 Unique constraint:
 
-`(daily_record_id, mantra_id)`
+`UNIQUE(daily_record_id, mantra_id)`
 
-A null `anushthan_id` means Regular Upasana.
+## 18.8 `daily_strotra_entries`
 
-A populated `anushthan_id` associates the entry with an Anushthan.
+Stores daily stotra practice.
 
-## 10.8 `daily_strotra_entries`
-
-Stores daily stotra counts.
-
-Candidate fields:
+Proposed fields:
 
 - `id`
 - `daily_record_id`
@@ -715,364 +703,322 @@ Candidate fields:
 - `anushthan_id` (nullable)
 - `recitations_completed`
 - `created_at`
+- `updated_at`
 
 Unique constraint:
 
-`(daily_record_id, strotra_id)`
+`UNIQUE(daily_record_id, strotra_id)`
 
-A null `anushthan_id` means Regular Upasana.
+## 18.9 `user_settings`
 
-A populated `anushthan_id` associates the entry with an Anushthan.
+Stores user-specific application settings.
 
-## 10.9 `user_settings`
+Proposed fields:
 
-Stores user-level configuration.
-
-Candidate fields:
-
-- `user_id`
-- `practice_start_date`
+- `id`
+- `user_id` (unique)
+- `practice_start_date` (nullable)
 - `timezone`
 - `panchang_location`
 - `created_at`
 - `updated_at`
 
-Enforce one settings row per user.
+---
 
-## 10.10 Authentication
+# 19. Database Integrity and Business Constraints
 
-Supabase Auth manages authentication identities through `auth.users`.
+The database and server-side application must enforce:
 
-The application must not create a separate password table.
+1. Every practice and record belongs to the authenticated user.
+2. Every daily record has a unique user/date combination.
+3. A mantra can appear only once per daily record.
+4. A stotra can appear only once per daily record.
+5. Each daily entry has exactly one attribution: Regular or one valid Anushthan.
+6. An Anushthan must belong to the same user as its daily entry.
+7. The selected practice must belong to the corresponding Anushthan mapping.
+8. Anushthan entries must fall within the permitted date range.
+9. Anushthan creation must enforce the single-ongoing-Anushthan rule, including concurrent requests.
+10. Mantra quantities must be whole malas.
+11. Stotra quantities must be complete recitations.
+12. Counts must not be negative.
+13. Targets must be positive.
+14. Historical count-edit restrictions must be enforced outside the frontend.
+15. First-use initialization must be atomic with the first genuine daily save.
+
+Additional composite foreign keys, database functions, constraints, and transaction boundaries will be evaluated during detailed database design.
 
 ---
 
-# 11. Database Integrity Rules
+# 20. Lifetime Statistics and Calculations
 
-The database and server-side application logic must enforce the following rules.
+## 20.1 Mantra Statistics
 
-1. Each user can access only their own data.
-2. A user can have only one daily record per date.
-3. A daily record can contain multiple mantra entries.
-4. A daily record can contain multiple stotra entries.
-5. A specific mantra can appear only once per daily record.
-6. A specific stotra can appear only once per daily record.
-7. Daily counts must be non-negative whole numbers.
-8. Every Anushthan must contain at least one practice.
-9. An Anushthan/practice association must be unique.
-10. Only one Anushthan can be ongoing per user.
-11. A daily entry associated with an Anushthan must reference a practice included in that Anushthan.
-12. The Anushthan and daily record must belong to the same user.
-13. The daily entry date must fall within the Anushthan's valid date range.
-14. Historical counts must not be modified after the date has passed.
-15. The first genuine daily record initializes the practice start date atomically.
-16. Archiving a mantra or stotra must not delete historical entries.
+Total malas:
 
-Some cross-table rules require transactional server-side validation or PostgreSQL triggers. Simple CHECK constraints alone cannot enforce every rule.
+`SUM(malas_completed)`
 
----
+Total repetitions:
 
-# 12. Derived Calculations
+`SUM(malas_completed) × 108`
 
-Lifetime totals should not be manually maintained in the master tables.
+## 20.2 Stotra Statistics
 
-They should be derived from daily entries.
+Total recitations:
 
-### Mantra Lifetime Total
+`SUM(recitations_completed)`
 
-`total_malas = SUM(malas_completed)`
+## 20.3 Anushthan Statistics
 
-`total_repetitions = total_malas × 108`
+Only entries explicitly associated with the relevant Anushthan contribute to its progress.
 
-### Stotra Lifetime Total
+Lifetime statistics include both Regular Upasana and Anushthan entries.
 
-`total_recitations = SUM(recitations_completed)`
-
-### Anushthan Mantra Progress
-
-Sum the daily mantra repetitions associated with the relevant Anushthan and mantra.
-
-### Anushthan Stotra Progress
-
-Sum the daily stotra recitations associated with the relevant Anushthan and stotra.
-
-### Remaining Target
-
-`remaining_target = original_target - completed_amount`
-
-The same daily entry contributes to the practice lifetime total and its associated Anushthan progress.
+The same daily entry must never be counted twice.
 
 ---
 
-# 13. Security Requirements
+# 21. Non-Functional Requirements
 
-- Authentication is mandatory.
-- Only an explicitly authorized account can access the application.
-- PostgreSQL Row Level Security (RLS) must protect every user-owned table.
-- Server-side authorization must be implemented for mutations.
-- Supabase service-role credentials must never be exposed in browser code.
-- Passwords must not be stored in application tables.
-- Direct API requests must not bypass ownership checks or historical count restrictions.
-- Secrets must be managed through environment variables or deployment secrets.
+## 21.1 Responsive Design
 
-Closing a browser tab is not a reliable logout event. A supported session expiration and inactivity policy must be selected.
+The application must be mobile-first and usable on desktop and mobile devices.
 
----
+## 21.2 Security
 
-# 14. Non-Functional Requirements
+- Supabase Auth for authentication.
+- PostgreSQL RLS for database authorization.
+- Server-side validation and authorization.
+- Secure environment variable management.
+- No service role credentials in client-side code.
 
-## 14.1 Reliability
+## 21.3 Reliability
 
-The application should preserve accurate historical data over many years.
+- Prevent duplicate records.
+- Preserve historical data.
+- Use database transactions for related operations.
+- Protect against concurrent Anushthan creation.
+- Support reliable backups and recovery.
 
-- Use database transactions for multi-table operations.
-- Maintain schema migrations in version control.
-- Provide portable data exports.
-- Establish backup and restore procedures.
-- Test restoration periodically.
+## 21.4 Maintainability
 
-## 14.2 Performance
+- Modular application architecture.
+- Clear separation of UI, validation, and data access.
+- Type-safe application interfaces.
+- Reusable components.
+- Automated tests for critical business rules.
 
-The initial workload is expected to be small and primarily single-user.
+## 21.5 Performance
 
-PostgreSQL is suitable for the expected volume.
-
-Indexes should be based on actual query patterns, particularly:
-
-- User and record date.
-- Daily record ID.
-- Mantra ID.
-- Stotra ID.
-- Anushthan ID.
-
-## 14.3 Usability
-
-- Mobile-first responsive interface.
-- Minimal steps for daily entry.
-- Clear differentiation between malas, repetitions, and recitations.
-- Clear indication of Regular versus Anushthan attribution.
-- Accessible controls and readable text.
-- Clear empty, loading, success, and error states.
-
-## 14.4 Maintainability
-
-- TypeScript throughout the application.
-- Separation of UI, business logic, validation, and data access.
-- Documented architecture decisions.
-- Database migrations in Git.
-- Automated tests for important domain rules.
+- Avoid unnecessary database queries.
+- Calculate aggregates efficiently.
+- Paginate or limit large historical datasets when appropriate.
+- Optimize calendar queries and rendering.
 
 ---
 
-# 15. Testing Requirements
+# 22. Testing Requirements
 
-The application should include tests for the following areas.
+## 22.1 Unit Tests — Jest
 
-### Unit Tests
+Test:
 
 - Mala-to-repetition conversion.
-- Lifetime total calculations.
-- Anushthan progress calculations.
+- Balanced target distribution.
 - Remaining target calculations.
-- Dynamic daily target redistribution.
-- Date and duration calculations.
+- Achievement percentages.
+- Anushthan progress calculations.
+- Date and lifecycle calculations.
+- Validation rules.
 
-### Integration Tests
+## 22.2 Integration Tests
+
+Test:
 
 - Daily record creation.
-- Mantra entry creation.
-- Stotra entry creation.
-- Regular and Anushthan attribution.
-- First-use lifecycle initialization.
-- Historical count restrictions.
-- Anushthan membership validation.
-- One ongoing Anushthan rule.
+- Daily entry creation and updates.
+- Duplicate-entry prevention.
+- Attribution validation.
+- Anushthan practice mapping validation.
+- User ownership enforcement.
+- First-use initialization.
+- Transaction and concurrency-sensitive operations.
 
-### End-to-End Tests
+## 22.3 End-to-End Tests — Playwright
 
-- User authentication.
-- Mantra registration.
-- Stotra registration.
-- Daily practice recording.
-- Calendar navigation.
-- Historical record viewing.
-- Comment editing.
-- Anushthan creation.
-- Registering a new practice during Anushthan creation.
-- Anushthan progress updates.
-- Unauthorized access prevention.
+Test complete user workflows:
 
----
-
-# 16. Acceptance Criteria
-
-Version 1 will be considered functionally complete when:
-
-1. Multiple mantras can be registered.
-2. Multiple stotras can be registered.
-3. Daily mantra counts can be entered in malas.
-4. Five malas correctly calculate to 540 repetitions.
-5. Daily stotra recitations can be recorded.
-6. Lifetime totals are accurate.
-7. One common daily record exists per user/date.
-8. Regular Upasana and Anushthan entries can coexist on the same date.
-9. The same mantra or stotra cannot be recorded under both categories on the same date.
-10. One shared comment is displayed from both calendar views.
-11. Missing days remain empty.
-12. Historical counts are read-only.
-13. Historical comments remain editable.
-14. Anushthan supports mantra-only, stotra-only, and mixed commitments.
-15. New practices can be registered during Anushthan creation.
-16. Each selected practice has its own target and progress.
-17. Only one Anushthan can be ongoing at a time.
-18. Daily Anushthan entries contribute to lifetime totals and Anushthan progress without duplication.
-19. Daily recommendations redistribute after each saved entry.
-20. The first genuine production record initializes the practice start date.
-21. Calendar navigation cannot precede the practice start date.
-22. Unauthorized users cannot access journal data.
+- Authentication.
+- Registering and archiving practices.
+- Saving daily mantra and stotra entries.
+- Adding daily comments.
+- Navigating the main calendar.
+- Creating an Anushthan.
+- Registering a practice during Anushthan creation.
+- Recording Anushthan progress.
+- Dynamic target redistribution.
+- Viewing Anushthan history and reports.
+- Verifying lifetime totals.
+- Verifying user-level data isolation.
 
 ---
 
-# 17. Open Questions and Decisions Pending
+# 23. Acceptance Criteria
 
-These items are intentionally unresolved and must be finalized before implementation of the affected functionality.
+The initial version will be considered functionally complete when:
 
-| No. | Question                                                                | Area                   |
-| --- | ----------------------------------------------------------------------- | ---------------------- |
-| 1   | Are partial malas allowed, or only whole malas?                         | Mantra input           |
-| 2   | How should targets not divisible by 108 be handled?                     | Anushthan calculations |
-| 3   | How should daily mala recommendations be rounded?                       | Target distribution    |
-| 4   | Is the start date counted as Day 1 and the end date included?           | Anushthan duration     |
-| 5   | Can an Anushthan be scheduled for a future date?                        | Anushthan creation     |
-| 6   | Are zero-count entries allowed?                                         | Daily records          |
-| 7   | Can today's counts be edited until midnight in the configured timezone? | Historical integrity   |
-| 8   | Which Panchang provider and calculation convention will be used?        | Panchang               |
-| 9   | What should happen if the user travels to another timezone?             | Date handling          |
-| 10  | What inactivity timeout and login behavior are required?                | Authentication         |
-| 11  | Can a practice be archived while associated with an ongoing Anushthan?  | Practice lifecycle     |
-| 12  | What exact condition marks an Anushthan completed?                      | Anushthan lifecycle    |
-
----
-
-# 18. Risks and Mitigation
-
-| Risk                                                      | Mitigation                                                     |
-| --------------------------------------------------------- | -------------------------------------------------------------- |
-| Repetition target cannot be represented using whole malas | Resolve target divisibility and rounding before implementation |
-| Lifetime totals become inconsistent                       | Derive totals from daily entries                               |
-| Anushthan progress differs from journal                   | Use daily entries as the single source of truth                |
-| Duplicate daily practice entries                          | Database unique constraints                                    |
-| Incorrect Anushthan attribution                           | Validate ownership, membership, and dates                      |
-| Historical counts are modified                            | Enforce immutability server-side/database-side                 |
-| Multiple ongoing Anushthans                               | Enforce the rule transactionally                               |
-| Incorrect Tithi information                               | Verify provider, location, and calculation convention          |
-| Session remains active unexpectedly                       | Configure session expiry and inactivity policy                 |
-| Long-term data loss                                       | Portable exports and tested backups                            |
-| Civil date shifts because of UTC conversion               | Use PostgreSQL DATE for practice dates                         |
+1. Users can securely authenticate.
+2. Users can manage mantra and stotra libraries.
+3. Daily entries can be saved without creating duplicate records.
+4. Regular and Anushthan practice can coexist on the same date for different practices.
+5. Each practice has correct attribution.
+6. Lifetime totals correctly aggregate all practice entries.
+7. Anushthan targets are independent for each selected practice.
+8. Balanced distribution produces correct whole-number recommendations.
+9. Recommendations update after daily progress is saved.
+10. Anushthan progress uses only its own entries.
+11. Every ended Anushthan appears in history, regardless of target completion.
+12. Historical reports accurately display committed and actual quantities.
+13. Main and Anushthan calendars share the same daily records.
+14. Past practice counts cannot be edited through unauthorized operations.
+15. The first-use lifecycle is initialized correctly.
+16. Critical workflows are covered by automated tests.
+17. Production deployment works securely on Vercel with Supabase.
 
 ---
 
-# 19. Proposed Technology Stack
+# 24. Unresolved Requirements
 
-| Layer                      | Technology                          |
-| -------------------------- | ----------------------------------- |
-| Frontend                   | React                               |
-| Framework                  | Next.js                             |
-| Language                   | TypeScript                          |
-| Backend Runtime            | Node.js (Next.js server-side)       |
-| Database                   | PostgreSQL                          |
-| Backend Services           | Supabase                            |
-| Authentication             | Supabase Auth                       |
-| Authorization              | PostgreSQL Row Level Security (RLS) |
-| Styling                    | Tailwind CSS                        |
-| Validation                 | Zod                                 |
-| Forms                      | React Hook Form (if needed)         |
-| Unit & Integration Testing | Jest                                |
-| End-to-End Testing         | Playwright                          |
-| Deployment & Hosting       | Vercel                              |
+The following decisions must be completed before the relevant features are implemented.
 
-### 19.1 Architectural Notes
+| #   | Question                                                                     | Status |
+| --- | ---------------------------------------------------------------------------- | ------ |
+| 1   | Are Anushthan start and end dates inclusive?                                 | Open   |
+| 2   | Can an Anushthan have a future start date?                                   | Open   |
+| 3   | Can an Anushthan be created with a target already completed?                 | Open   |
+| 4   | Are zero-count entries allowed, or should saving zero remove/omit the entry? | Open   |
+| 5   | What timezone determines the civil practice date?                            | Open   |
+| 6   | How should travel across timezones affect daily records?                     | Open   |
+| 7   | What exact cutoff determines when a date becomes historical?                 | Open   |
+| 8   | Which Panchang provider and regional convention should be used?              | Open   |
+| 9   | Can archived practices remain selectable in a new Anushthan?                 | Open   |
+| 10  | What happens if a practice linked to an ongoing Anushthan is archived?       | Open   |
+| 11  | What is the account session/inactivity policy?                               | Open   |
+| 12  | Should an Anushthan target or duration be editable after it begins?          | Open   |
 
-- Next.js will serve as the primary application framework.
-- Node.js will provide the server-side runtime through Next.js.
-- A separate Express.js backend is not planned for the initial version.
-- Supabase will provide managed PostgreSQL database services and authentication.
-- PostgreSQL Row Level Security (RLS) will enforce user-level data access policies.
-- Zod will validate incoming data at application boundaries.
-- React Hook Form may be introduced if form complexity justifies it.
-- Jest will be used for unit and integration testing.
-- Playwright will be used for end-to-end testing.
-- Vercel will host the production application.
-- Environment variables and secrets will be managed through local environment files and Vercel environment settings.
-- Sensitive credentials, especially the Supabase service role key, must never be exposed to the browser.
+These questions must be resolved before the affected features are finalized.
 
 ---
 
-# 20. Development Milestones
+# 25. Proposed Technology Stack
 
-## Phase 1 — Requirements and Architecture
+| Layer                      | Technology                    |
+| -------------------------- | ----------------------------- |
+| Frontend                   | React                         |
+| Framework                  | Next.js                       |
+| Language                   | TypeScript                    |
+| Backend Runtime            | Node.js (Next.js server-side) |
+| Database                   | PostgreSQL                    |
+| Backend Services           | Supabase                      |
+| Authentication             | Supabase Auth                 |
+| Authorization              | PostgreSQL Row Level Security |
+| Styling                    | Tailwind CSS                  |
+| Validation                 | Zod                           |
+| Forms                      | React Hook Form (if needed)   |
+| Unit & Integration Testing | Jest                          |
+| End-to-End Testing         | Playwright                    |
+| Deployment & Hosting       | Vercel                        |
 
-- Finalize requirements.
-- Resolve open business rules.
-- Design entity relationships.
-- Define database constraints.
-- Define authorization policies.
-- Document architectural decisions.
+## 25.1 Architectural Notes
 
-## Phase 2 — Environment Setup
+- Next.js is the primary application framework.
+- Node.js provides the server-side runtime through Next.js.
+- No separate Express or H3 server is planned.
+- Supabase provides managed PostgreSQL and authentication.
+- Zod validates application input at data boundaries.
+- React Hook Form will be introduced if form complexity warrants it.
+- Jest handles unit and integration tests.
+- Playwright handles end-to-end workflows.
+- Vercel hosts the production application.
+- Environment variables and deployment secrets must be managed securely.
 
-- Create Next.js application.
-- Configure TypeScript and Tailwind CSS.
-- Set up Supabase.
-- Configure separate development and production environments.
+---
+
+# 26. Implementation Milestones
+
+### Milestone 1 — Requirements and Architecture
+
+- Finalize SRS.
+- Finalize unresolved business rules.
+- Review relational schema.
+- Define authorization and integrity strategy.
+
+### Milestone 2 — Project Setup
+
+- Initialize Next.js and TypeScript.
+- Configure Tailwind CSS.
+- Configure ESLint and formatting.
+- Configure Jest and Playwright.
 - Establish Git workflow.
 
-## Phase 3 — Database and Authentication
+### Milestone 3 — Database and Authentication
 
-- Create database migrations.
-- Configure authentication.
-- Implement RLS policies.
-- Verify ownership and access restrictions.
+- Create Supabase project.
+- Configure PostgreSQL schema and migrations.
+- Configure RLS policies.
+- Implement authentication.
+- Verify user data isolation.
 
-## Phase 4 — Core Practice Management
+### Milestone 4 — Practice Libraries
 
-- Mantra library.
-- Stotra library.
-- Daily records.
-- Daily comments.
-- Lifetime totals.
+- Mantra CRUD.
+- Stotra CRUD.
+- Archival behavior.
 
-## Phase 5 — Anushthan
+### Milestone 5 — Daily Practice
 
-- Anushthan creation.
-- Practice associations.
-- Individual targets.
-- Dynamic target calculations.
-- Anushthan calendar and progress.
+- Daily record handling.
+- Mantra entries.
+- Stotra entries.
+- Shared comments.
+- Attribution rules.
+- Lifetime statistics.
 
-## Phase 6 — Dashboard and Calendar
+### Milestone 6 — Calendar
 
-- Dashboard.
-- Monthly calendar.
-- Historical record views.
-- Tithi/Panchang integration, if verified.
+- Main calendar.
+- Daily record navigation.
+- Anushthan calendar integration.
 
-## Phase 7 — Testing
+### Milestone 7 — Anushthan
 
-- Unit tests.
-- Integration tests.
-- Playwright E2E tests.
-- Security and authorization tests.
-- Responsive testing.
+- Creation workflow.
+- Practice mappings.
+- Independent targets.
+- Balanced distribution.
+- Dynamic redistribution.
+- Progress calculation.
 
-## Phase 8 — Deployment and Maintenance
+### Milestone 8 — History and Reports
 
-- Production environment.
-- Deployment.
-- Backup/export strategy.
-- Restore testing.
-- Documentation and maintenance plan.
+- End-date lifecycle.
+- Historical listing.
+- Per-practice reports.
+- Historical data preservation.
+
+### Milestone 9 — Quality and Deployment
+
+- Automated testing.
+- Security review.
+- Production configuration.
+- Vercel deployment.
+- Backup and recovery verification.
 
 ---
 
-**Document Status:** Version 0.2.0 is a working requirements baseline. It is not yet frozen or approved for implementation. All unresolved domain rules must be reviewed before the relevant features are built.
+# 27. Document Status
+
+This SRS is the working requirements baseline for Sadhana Tracker.
+
+Requirements that have been explicitly confirmed are treated as fixed for the current scope. Open decisions remain subject to review before implementation of the affected functionality.
+
+Database field names and constraints are proposed and may be refined during schema design without changing the confirmed business rules.

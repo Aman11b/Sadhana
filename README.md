@@ -1,162 +1,94 @@
 # Sadhana Tracker
 
-A private, mobile-first spiritual practice journal for tracking daily mantra japa, stotra recitations, personal observations, and Anushthan commitments.
-
-**Project Status:** Requirements & Planning  
-**Version:** 0.2.0  
-**Target:** Personal use  
-**Architecture:** Next.js + TypeScript + Supabase
-
----
+A private, mobile-first application for tracking daily spiritual practices, maintaining a long-term Sadhana journal, and managing Anushthan commitments.
 
 ## Overview
 
-Sadhana Tracker is designed to maintain a structured, long-term record of personal spiritual practices.
+Sadhana Tracker helps maintain a structured and reliable record of mantra japa, stotra recitations, daily observations, and personal Anushthan commitments.
 
-The application allows users to:
-
-- Record daily mantra japa in malas.
-- Record daily stotra recitations.
-- Track lifetime totals for individual mantras and stotras.
-- Maintain comments and personal observations for each day.
-- Create and monitor time-bound Anushthan commitments.
-- View historical practice records through a calendar.
-- Track Anushthan progress independently from regular daily practice.
-
-The application prioritizes accurate record-keeping, privacy, simplicity, and long-term data integrity.
+The application provides a unified calendar and practice history, allowing daily activities to be recorded and reviewed without duplicating data.
 
 ## Core Features
 
-### 1. Mantra Management
+### 1. Practice Library
 
-Maintain a personal library of mantras.
+Maintain separate libraries for:
 
-- Create, view, edit, and archive mantras.
-- Record daily japa in malas.
-- One mala is always 108 repetitions.
-- Automatically calculate total repetitions.
-- View lifetime malas and repetitions for each mantra.
+- **Mantras:** Create, view, edit, and archive mantras.
+- **Stotras:** Create, view, edit, and archive stotras.
 
-Example:
+Archived practices remain available in historical records.
 
-| Metric               |  Value |
-| -------------------- | -----: |
-| Daily malas          |      5 |
-| Repetitions per mala |    108 |
-| Daily repetitions    |    540 |
-| Lifetime malas       |    500 |
-| Lifetime repetitions | 54,000 |
+### 2. Daily Practice Tracking
 
-### 2. Stotra Management
+- Record daily mantra japa in whole malas.
+- One mala always equals 108 repetitions.
+- Record stotra recitations in complete units.
+- Add an optional daily comment or observation.
+- Track Regular Upasana and Anushthan practices on the same date.
+- View daily records through the main calendar or an Anushthan calendar.
+- Maintain a single daily record per user and date.
 
-Maintain a separate library of stotras.
+### 3. Anushthan Management
 
-- Create, view, edit, and archive stotras.
-- Record daily complete recitations.
-- Calculate lifetime recitation totals.
-- View historical practice records.
+Create Anushthans with one or more mantras, stotras, or a combination of both.
 
-### 3. Daily Practice Tracking
+Each selected practice has an independent target:
 
-Each calendar date has one common daily record.
+- Mantras: Target number of malas.
+- Stotras: Target number of complete recitations.
 
-A daily record contains:
+Features include:
 
-- Practice date.
-- Personal comment or observation.
-- Multiple mantra entries.
-- Multiple stotra entries.
-
-Regular Upasana and Anushthan practice can coexist on the same date.
-
-Each individual mantra or stotra entry belongs to either Regular Upasana or one Anushthan.
-
-The same mantra or stotra cannot be recorded under both categories on the same date.
-
-### 4. Anushthan Management
-
-An Anushthan represents a commitment to perform a specified amount of one or more practices within a defined period.
-
-Supported combinations:
-
-- One or more mantras.
-- One or more stotras.
-- A combination of mantras and stotras.
-
-Each selected practice has its own independent target.
-
-Example:
-
-| Practice |           Commitment | Duration |
-| -------- | -------------------: | -------: |
-| Mantra A | 1,25,000 repetitions |  40 days |
-| Stotra A |       40 recitations |  40 days |
-
-Features:
-
-- Create Anushthans with selected practices.
-- Select existing mantras and stotras.
-- Register new practices directly during Anushthan creation.
-- Track progress separately for every selected practice.
-- View the complete Anushthan duration in a dedicated calendar.
-- Calculate daily recommended targets dynamically.
+- Define a start date and end date.
+- Automatically distribute targets across the duration.
+- Redistribute remaining targets after daily progress is saved.
+- Calculate progress independently for every selected practice.
+- Track Anushthan-specific progress without duplicating daily entries.
 - Allow only one ongoing Anushthan at a time.
 
-### 5. Dynamic Daily Targets
+### 4. Anushthan History and Reports
 
-The application distributes each Anushthan commitment as evenly as possible across its duration.
+Every Anushthan becomes part of historical records after its end date, whether its target was fulfilled or not.
 
-After recording daily practice:
+Historical reports include:
 
-- Completed amounts are deducted from the remaining commitment.
-- The recommended daily target is recalculated.
-- Remaining targets are redistributed across the remaining days.
-- The original commitment and duration remain unchanged.
+- Original commitment.
+- Start and end dates.
+- Total committed malas or recitations.
+- Actual completed malas or recitations.
+- Remaining target.
+- Achievement percentage.
+- Daily practice history.
 
-Daily recommendations do not restrict actual practice counts.
+Historical records preserve actual progress and are not automatically extended.
 
-### 6. Calendar and History
+### 5. Lifetime Statistics
 
-The main calendar provides:
+- Total malas completed for each mantra.
+- Total mantra repetitions (malas × 108).
+- Total stotra recitations.
+- Practice history across Regular Upasana and Anushthans.
 
-- Monthly navigation.
-- Historical daily records.
-- Distinct indicators for Regular Upasana and Anushthan activity.
-- Access to comments and practice counts.
-- An earliest-date boundary based on the first genuine practice entry.
+### 6. Calendar
 
-Anushthan calendars display the entire commitment period.
+- Display daily practice records.
+- Navigate from the practice calendar to daily details.
+- View the entire duration of an Anushthan.
+- Access the same daily record and comments from both calendar views.
+- Preserve empty dates without creating artificial zero-count entries.
 
-Both calendars open the same underlying daily record.
+### 7. Panchang Integration
 
-### 7. Panchang and Tithi
+Planned functionality:
 
-The dashboard is intended to display:
+- Display relevant Panchang information.
+- Support a configurable Panchang location.
+- Keep timezone and Panchang location as separate settings.
 
-- Civil date.
-- Hindu Tithi.
-- Relevant Panchang information.
-
-Panchang integration is conditional on selecting a reliable provider and verifying its calculation convention and location requirements.
-
-If no suitable provider is selected, the application will display the normal civil date without inventing Tithi information.
-
-### 8. Settings
-
-A dedicated user settings table will support:
-
-- Practice start date.
-- Timezone.
-- Panchang location.
-- Additional preferences introduced in future versions.
-
-Sensitive credentials and environment configuration will remain outside the database.
-
----
+Availability and reliability of a suitable provider will be evaluated before implementation.
 
 ## Technology Stack
-
-## 🛠️ Technology Stack
 
 | Category                   | Technology                          |
 | -------------------------- | ----------------------------------- |
@@ -175,83 +107,71 @@ Sensitive credentials and environment configuration will remain outside the data
 | End-to-End Testing         | Playwright                          |
 | Deployment & Hosting       | Vercel                              |
 
-A separate Express backend is not currently required.
+## Proposed Database Structure
 
-## Proposed Database Tables
+The application will initially use the following tables:
 
-| Table                   | Responsibility                                      |
-| ----------------------- | --------------------------------------------------- |
-| `mantras`               | Registered mantras                                  |
-| `strotras`              | Registered stotras                                  |
-| `anushthans`            | Anushthan details and duration                      |
-| `anushthan_mantras`     | Mantra associations and individual targets          |
-| `anushthan_strotras`    | Stotra associations and individual targets          |
-| `daily_records`         | Common daily record and comment                     |
-| `daily_mantra_entries`  | Daily mantra counts and Anushthan attribution       |
-| `daily_strotra_entries` | Daily stotra counts and Anushthan attribution       |
-| `user_settings`         | User preferences and application lifecycle settings |
+| Table                   | Responsibility                     |
+| ----------------------- | ---------------------------------- |
+| `mantras`               | Mantra library                     |
+| `strotras`              | Stotra library                     |
+| `anushthans`            | Anushthan commitments              |
+| `anushthan_mantras`     | Mantra targets within an Anushthan |
+| `anushthan_strotras`    | Stotra targets within an Anushthan |
+| `daily_records`         | One daily record per user and date |
+| `daily_mantra_entries`  | Daily mantra practice entries      |
+| `daily_strotra_entries` | Daily stotra practice entries      |
+| `user_settings`         | User-specific application settings |
 
-Supabase Auth will manage authentication identities.
+Authentication will use Supabase Auth.
 
-See [`docs/SRS.md`](./docs/SRS.md) for detailed requirements, relationships, constraints, and unresolved decisions.
+## Important Business Rules
 
-## Important Design Principles
+- One mala is always 108 repetitions.
+- Mantra daily entries and Anushthan mantra targets use whole malas.
+- Stotra entries and targets use complete recitations.
+- Every mantra and stotra has an independent Anushthan target.
+- Daily recommendations use balanced whole-number distribution.
+- Actual daily progress determines remaining recommendations.
+- Regular and Anushthan practices can coexist on the same date.
+- The same individual practice cannot be recorded under both categories on the same date.
+- Historical daily counts become read-only after the practice date; historical comments remain editable.
+- Anushthan history retains every ended commitment, regardless of target completion.
+- Lifetime totals include both Regular and Anushthan practice entries.
 
-1. **Single source of truth:** One daily record per user and date.
-2. **No duplicate counts:** An entry contributes to lifetime totals and, when applicable, Anushthan progress.
-3. **Independent attribution:** Regular Upasana and Anushthan can coexist on a date.
-4. **Historical integrity:** Past practice counts cannot be edited; comments can remain editable.
-5. **No automatic zero records:** Missing days remain empty.
-6. **Database-level security:** User data must be protected through RLS and server-side authorization.
-7. **Derived totals:** Lifetime totals are calculated from daily entries rather than maintained as manually updated counters.
+## Project Principles
 
-## Development Philosophy
+- Mobile-first and responsive design.
+- Reliable, long-term data storage.
+- No duplicate daily records or practice counts.
+- Database-level data integrity.
+- Server-side authorization and validation.
+- Maintainable application architecture.
+- Automated testing for important workflows.
+- Secure deployment and environment configuration.
 
-This project is being developed incrementally with an emphasis on understanding production-level engineering practices.
+## Development Roadmap
 
-Development will follow these stages:
-
-1. Requirements gathering and validation.
-2. Architecture and database design.
-3. Environment and project setup.
-4. Authentication and security.
-5. Core functionality.
-6. UI and responsive design.
-7. Automated testing.
-8. Deployment.
-9. Maintenance, backups, and future improvements.
-
-Each feature will be implemented in small, reviewable steps with meaningful Git commits and documentation.
+1. Finalize requirements and database design.
+2. Set up the Next.js application and development environment.
+3. Configure Supabase and PostgreSQL.
+4. Implement authentication and authorization.
+5. Implement mantra and stotra libraries.
+6. Implement daily practice tracking.
+7. Implement the calendar.
+8. Implement Anushthan management and dynamic target distribution.
+9. Implement Anushthan history and reports.
+10. Implement lifetime statistics.
+11. Implement testing and security checks.
+12. Deploy to Vercel.
+13. Evaluate PWA support and Panchang integration.
 
 ## Current Status
 
-**Phase 1 — Requirements Discovery**
+**Phase:** Requirements finalization and project planning.
 
-The core product behavior and major database relationships have been discussed.
-
-The following still require final decisions:
-
-- Mala input and repetition-target rounding.
-- Anushthan date boundaries.
-- Anushthan creation/start-date rules.
-- Panchang provider and calculation convention.
-- Authentication session policy.
-- Exact database constraints and RLS policies.
-
-Implementation will begin after requirements and architecture are finalized.
+Implementation will begin after the remaining business rules and database constraints are reviewed.
 
 ---
 
-## Future Possibilities
-
-Potential improvements after the initial release:
-
-- Installable Progressive Web App.
-- Offline-first practice recording.
-- Advanced practice statistics.
-- Historical export and backup tools.
-- More detailed Panchang information.
-- Notifications and reminders.
-- Anushthan completion and missed-day management.
-
-These are not commitments for the initial release.
+Built as a personal Sadhana tracking and journaling application.
