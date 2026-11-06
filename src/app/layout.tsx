@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Ubuntu, Fira_Sans } from "next/font/google";
 import "./globals.css";
+import AppHeader from "@/components/layout/app-header";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const ubuntu = Ubuntu({
+  variable: "--font-ubuntu",
   subsets: ["latin"],
+  weight: ["400", "500", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const firaSans = Fira_Sans({
+  variable: "--font-fira-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "700"],
 });
 
 export const metadata: Metadata = {
@@ -21,9 +24,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${ubuntu.variable} ${firaSans.variable} h-full antialiased`}
+      // * it tells nextjs to loaed Ubuntu and FiraSans and expose theri CSS variables
     >
-      <body className="flex flex-col min-h-full">{children}</body>
+      <body className="flex flex-col min-h-full">
+        <AppHeader />
+        {children}
+      </body>
     </html>
   );
 }

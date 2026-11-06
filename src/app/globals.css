@@ -1,1 +1,16 @@
 @import "tailwindcss";
+
+@theme {
+  --color-devi: #85122a;
+  --color-bhairava: #1a1a1a;
+
+  --color-page: #f8f7f4;
+  --color-surface: #ffffff;
+
+  --color-border: #e5e1dc;
+  --color-muted: #6b6b6b;
+}
+
+body {
+  font-family: var(--font-ubuntu), sans-serif;
+}
