@@ -17,6 +17,8 @@
   /* UI elements */
   --color-border: #e8dfd0;
   --color-muted: #625b60;
+
+  --breakpoint-nav: 1100px;
 }
 
 body {

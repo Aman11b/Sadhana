@@ -1,15 +1,14 @@
 "use client";
+import {
+  CalendarDays,
+  Flame,
+  LayoutDashboard,
+  NotebookPen,
+  Settings,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import LibraryDropdown from "./library-dropdown";
-import {
-  LayoutDashboard,
-  NotebookPen,
-  CalendarDays,
-  BookOpen,
-  Flame,
-  Settings,
-} from "lucide-react";
 
 export default function AppNavigation() {
   const pathname = usePathname();
