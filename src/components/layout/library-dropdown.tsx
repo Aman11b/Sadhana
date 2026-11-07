@@ -1,11 +1,11 @@
 "use client";
 import { usePathname } from "next/navigation";
 import DropdownPanel from "./dropdown-panel";
-import { ChevronDown } from "lucide-react";
+import { BookOpen, ChevronDown } from "lucide-react";
 
 export default function LibraryDropdown() {
   const pathname = usePathname();
-  const isActive = pathname === "/mantras" || pathname === "/strotras";
+  const isActive = pathname === "/mantras" || pathname === "/stotras";
 
   return (
     <div className="group relative">
@@ -16,6 +16,7 @@ export default function LibraryDropdown() {
         }`}
         aria-haspopup="true"
       >
+        <BookOpen size={16} strokeWidth={1.8} />
         Library
         <ChevronDown
           size={16}
