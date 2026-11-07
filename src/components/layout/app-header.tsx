@@ -12,7 +12,7 @@ export default function AppHeader() {
         </span>
       </div>
       {/* responsive header */}
-      <header className="nav:top-12 z-[110] nav:z-50 nav:fixed flex justify-between items-center bg-surface shadow-sm nav:shadow-lg px-4 sm:px-6 py-4 nav:border nav:border-border nav:rounded-2xl w-full nav:w-[calc(100%-2rem)] nav:max-w-7xl">
+      <header className="nav:top-12 z-[110] nav:z-50 nav:fixed nav:inset-x-0 flex justify-between items-center bg-surface shadow-sm nav:shadow-lg nav:mx-auto px-4 sm:px-6 py-4 nav:border nav:border-border nav:rounded-2xl w-full nav:w-[calc(100%-2rem)] nav:max-w-7xl">
         <Link href="/" className="font-bold text-bhairava text-xl">
           <span className="text-devi">ॐ </span>Sadhana
         </Link>
