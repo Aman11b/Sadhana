@@ -1,16 +1,61 @@
 @import "tailwindcss";
 
 @theme {
-  --color-devi: #85122a;
-  --color-bhairava: #1a1a1a;
+  /* Brand */
+  --color-devi: #d64b47;
+  --color-bhairava: #17151a;
 
-  --color-page: #f8f7f4;
-  --color-surface: #ffffff;
+  /* Secondary palette */
+  --color-gold: #b7955d;
+  --color-gold-light: #e5d2ae;
 
-  --color-border: #e5e1dc;
-  --color-muted: #6b6b6b;
+  /* Backgrounds */
+  --color-page: #f0e9dc;
+  --color-surface: #fffdfa;
+  --color-surface-muted: #f8f3ea;
+
+  /* UI elements */
+  --color-border: #e8dfd0;
+  --color-muted: #625b60;
 }
 
 body {
   font-family: var(--font-ubuntu), sans-serif;
+}
+
+@layer components {
+  /* Regular navigation link */
+  .nav-link {
+    @apply relative py-2 text-muted transition-colors duration-200;
+  }
+  .nav-link::after {
+    @apply bottom-0 left-0 absolute bg-devi rounded-md w-full h-0.5 content-[''] scale-x-0 origin-center transition-transform duration-300;
+  }
+  .nav-link:hover {
+    @apply text-devi;
+  }
+  .nav-link:hover::after {
+    @apply scale-x-100;
+  }
+  .nav-link-active {
+    @apply font-bold text-devi text-lg;
+  }
+  .nav-link-active::after {
+    @apply scale-x-100;
+  }
+
+  /* Dropdown naviagtion link */
+
+  .dropdown-link {
+    @apply block relative px-3 py-2 text-muted transition-colors duration-200;
+  }
+  .dropdown-link::after {
+    @apply right-3 bottom-1 left-3 absolute bg-devi rounded-md h-0.5 content-[''] scale-x-0 origin-center transition-transform duration-300;
+  }
+  .dropdown-link:hover {
+    @apply text-devi;
+  }
+  .dropdown-link:hover::after {
+    @apply scale-x-100;
+  }
 }

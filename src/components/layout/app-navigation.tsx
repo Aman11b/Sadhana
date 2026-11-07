@@ -7,11 +7,7 @@ export default function AppNavigation() {
   const pathname = usePathname();
 
   const getLinkClass = (isActive: boolean) =>
-    `relative py-2 transition-colors duration-200 ${
-      isActive
-        ? "text-devi text-lg font-bold after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-devi"
-        : "text-muted hover:text-devi"
-    }`;
+    `nav-link ${isActive ? "nav-link-active" : ""}`;
   return (
     <nav aria-label="main navigation">
       <ul className="flex items-center gap-6">
