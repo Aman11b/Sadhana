@@ -26,7 +26,7 @@ export default function AppHeader() {
           <span className="font-medium text-bhairava text-sm">Aman</span>
         </div>
       </header>
-      <div aria-hidden="true" className="hidden nav:h-24" />
+      <div aria-hidden="true" className="hidden nav:block nav:h-24" />
     </>
   );
 }

@@ -18,6 +18,15 @@
   --color-border: #e8dfd0;
   --color-muted: #625b60;
 
+  /* Additional palette */
+  --color-plum: #2e232f;
+  --color-kumkum: #d64045;
+  --color-saffron: #ffc000;
+
+  /* Practice card surfaces */
+  --color-ivory: #f5f3e7;
+  --color-cream: #ede4d4;
+
   --breakpoint-nav: 1100px;
 }
 
