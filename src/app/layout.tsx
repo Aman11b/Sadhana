@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Ubuntu, Fira_Sans } from "next/font/google";
+import { Ubuntu, Fira_Sans, Amita } from "next/font/google";
 import "./globals.css";
 import AppHeader from "@/components/layout/app-header";
 
@@ -15,6 +15,12 @@ const firaSans = Fira_Sans({
   weight: ["400", "500", "700"],
 });
 
+const amita = Amita({
+  subsets: ["devanagari", "latin"],
+  weight: ["400", "700"],
+  variable: "--font-amita",
+});
+
 export const metadata: Metadata = {
   title: "Sadhana Tracker",
   description: "A personal journal for tracking daily spiritual practices.",
@@ -24,7 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${ubuntu.variable} ${firaSans.variable} h-full antialiased`}
+      className={`${ubuntu.variable} ${firaSans.variable} ${amita.variable} h-full antialiased`}
       // * it tells nextjs to loaed Ubuntu and FiraSans and expose theri CSS variables
     >
       <body className="flex flex-col min-h-full">

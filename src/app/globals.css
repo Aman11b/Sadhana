@@ -34,6 +34,15 @@ body {
   font-family: var(--font-ubuntu), sans-serif;
 }
 
+@layer utilities {
+  .font-hindi {
+    font-family: var(--font-amita), serif;
+  }
+  .font-ubuntu {
+    font-family: var(--font-ubuntu), serif;
+  }
+}
+
 @layer components {
   /* Regular navigation link */
   .nav-link {

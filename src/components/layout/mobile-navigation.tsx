@@ -12,7 +12,7 @@ export default function MobileNavigation() {
       {/* hamburger / close button */}
       <button
         type="button"
-        aria-label={isOpen ? "Close navigation menu" : "Opne navigation menu"}
+        aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
         aria-expanded={isOpen}
         onClick={() => setIsOpen((open) => !open)}
         className={`nav:hidden relative z-[110] rounded-full transition-colors duration-200 p-2 ${
@@ -31,13 +31,13 @@ export default function MobileNavigation() {
       {isOpen && (
         <div className="z-[100] fixed inset-0 bg-bhairava/50">
           <aside
-            className="flex flex-col bg-surface shadow-xl ml-auto px-6 py-[22] border-border border-l w-[85%] max-w-md h-dvh"
+            className="flex flex-col bg-surface shadow-xl ml-auto px-6 py-[38] border-border border-l w-[85%] max-w-md h-dvh"
             onClick={(event) => event.stopPropagation()}
           >
             {/* drawer header */}
             <div className="flex justify-between items-center mb-5">
               <div className="text-center">
-                <span className="font-bold text-gold text-xl tracking-widest">
+                <span className="font-hindi font-bold text-gold text-xl tracking-widest">
                   ॥ ॐ भैरवाय नमः ॥
                 </span>
               </div>

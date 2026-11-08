@@ -6,15 +6,11 @@ export default function AppHeader() {
   return (
     <>
       {/* desktop invocation */}
-      <div className="hidden nav:flex justify-center my-2 mt-3">
-        <span className="font-medium text-gold text-lg tracking-widest">
-          ॥ ॐ भैरवाय नमः ॥
-        </span>
-      </div>
+
       {/* responsive header */}
-      <header className="nav:top-12 z-[110] nav:z-50 nav:fixed nav:inset-x-0 flex justify-between items-center bg-surface shadow-sm nav:shadow-lg nav:mx-auto px-4 sm:px-6 py-4 nav:border nav:border-border nav:rounded-2xl w-full nav:w-[calc(100%-2rem)] nav:max-w-7xl">
+      <header className="z-[110] nav:z-50 relative flex justify-between items-center bg-surface shadow-sm nav:shadow-lg px-4 sm:px-6 py-6 nav:border-border w-full">
         <Link href="/" className="font-bold text-bhairava text-xl">
-          <span className="text-devi">ॐ </span>Sadhana
+          <span className="font-hindi text-devi">ॐ </span>Sadhana
         </Link>
         <div className="hidden nav:block">
           <AppNavigation />
@@ -26,7 +22,6 @@ export default function AppHeader() {
           <span className="font-medium text-bhairava text-sm">Aman</span>
         </div>
       </header>
-      <div aria-hidden="true" className="hidden nav:block nav:h-24" />
     </>
   );
 }

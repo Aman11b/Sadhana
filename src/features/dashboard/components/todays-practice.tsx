@@ -1,5 +1,6 @@
 "use client";
 
+import { BookOpen } from "lucide-react";
 import { useState } from "react";
 
 export default function TodaysPractice() {
@@ -9,7 +10,8 @@ export default function TodaysPractice() {
       {/* header */}
       <div className="flex sm:flex-row flex-col sm:justify-between sm:items-center gap-3">
         <div>
-          <p className="mb-2 font-medium text-md text-saffron tracking-widest">
+          <p className="flex items-center gap-2 mb-2 font-medium text-md text-saffron tracking-widest">
+            <BookOpen size={17} />
             DAILY PRACTICE
           </p>
           <h2 className="font-bold text-2xl sm:text-3xl">
