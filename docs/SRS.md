@@ -989,7 +989,608 @@ These questions must be resolved before the affected features are finalized.
 - Daily record navigation.
 - Anushthan calendar integration.
 
-### Milestone 7 — Anushthan
+### Milestone 7 — Anushthan# Sadhana Tracker — Software Requirements Specification
+
+**Version:** 0.4.0  
+**Last Updated:** 2026-11-10  
+**Status:** Requirements Finalized — Ready for Database Design
+
+---
+
+## 1. Introduction
+
+### 1.1 Purpose
+
+Sadhana Tracker is a private, mobile-friendly application for recording and reviewing daily spiritual practices, primarily mantra japa and stotra recitation.
+
+The application provides a structured way to maintain practice records, organize mantras and stotras, manage time-bound Anushthans, review historical activity, and track long-term progress.
+
+### 1.2 Product Goals
+
+- Maintain an organized personal library of mantras and stotras.
+- Record daily mantra japa and stotra recitations.
+- Support regular Upasana and structured Anushthans.
+- Provide a calendar-based view of practice history.
+- Allow daily reflections and comments.
+- Preserve historical records and completed Anushthans.
+- Provide meaningful summaries and lifetime statistics.
+- Keep personal practice data private and accessible only to its owner.
+
+### 1.3 Scope of v1
+
+The first version will focus on:
+
+- Personal mantra and stotra management.
+- Daily practice recording.
+- Daily comments and reflections.
+- Calendar and historical records.
+- Anushthan creation, tracking, and completion.
+- Anushthan history and final reports.
+- Lifetime statistics.
+- Authentication and private data access.
+
+Panchang integration is explicitly deferred from v1.
+
+---
+
+## 2. Technology Stack
+
+| Area                 | Technology                    |
+| -------------------- | ----------------------------- |
+| Frontend framework   | Next.js (App Router)          |
+| Language             | TypeScript                    |
+| UI                   | React                         |
+| Styling              | Tailwind CSS                  |
+| Backend and database | Supabase                      |
+| Database             | PostgreSQL                    |
+| Authentication       | Supabase Auth                 |
+| Authorization        | PostgreSQL Row Level Security |
+| Validation           | Zod                           |
+| Unit testing         | Jest                          |
+| End-to-end testing   | Playwright                    |
+| Deployment           | Vercel                        |
+| Runtime              | Node.js                       |
+
+The final database schema, migrations, and data-access architecture will be defined before persistent feature implementation.
+
+---
+
+## 3. Core Domain Concepts
+
+### 3.1 Mantra
+
+A mantra is an individual practice item maintained in the user's personal library.
+
+Mantra records may contain:
+
+- Name.
+- Description or associated information.
+- Optional notes.
+- Active or archived status.
+- Creation and update timestamps.
+
+Mantra japa is measured in malas.
+
+**One mala = 108 repetitions.**
+
+Mantra counts are recorded as whole malas, not individual repetitions.
+
+### 3.2 Stotra
+
+A stotra is an individual recitation item maintained in the user's personal library.
+
+Stotra records may contain:
+
+- Name.
+- Description or associated information.
+- Optional notes.
+- Active or archived status.
+- Creation and update timestamps.
+
+Stotra counts represent the number of complete recitations.
+
+### 3.3 Daily Practice
+
+A daily practice record represents the user's mantra and/or stotra activity on a particular civil date.
+
+A daily record may contain:
+
+- Practice date.
+- Mantra entries.
+- Stotra entries.
+- Daily comment or reflection.
+
+A date without recorded practice must remain empty. The application must not generate artificial zero-count records.
+
+### 3.4 Anushthan
+
+An Anushthan is a structured practice commitment with a defined date range and target quantities.
+
+An Anushthan may contain:
+
+- Mantra practices only.
+- Stotra practices only.
+- Both mantra and stotra practices.
+
+Mantra and stotra components have independent targets and progress.
+
+### 3.5 Regular Upasana
+
+Regular Upasana represents practice outside an Anushthan.
+
+For a given mantra or stotra on a particular date, its recorded activity must belong to either regular Upasana or an Anushthan, not both.
+
+Different practices can have different associations on the same date. For example, regular mantra japa and an Anushthan stotra recitation may both be recorded on the same day.
+
+---
+
+## 4. Functional Requirements
+
+### 4.1 Practice Library
+
+The user must be able to:
+
+- Create a mantra.
+- View the mantra library.
+- Edit mantra details.
+- Archive a mantra.
+- Create a stotra.
+- View the stotra library.
+- Edit stotra details.
+- Archive a stotra.
+- View archived practices and their historical records.
+
+Archived practices must not be selectable when creating a new Anushthan.
+
+Archiving must not delete historical practice records.
+
+A practice linked to an ongoing Anushthan cannot be archived. The user must first complete or otherwise end the associated Anushthan.
+
+### 4.2 Daily Practice Recording
+
+The user must be able to record daily mantra and stotra activity.
+
+#### Mantra entries
+
+- Counts are stored as whole malas.
+- One mala represents 108 repetitions.
+- A user may record multiple mantras on the same date.
+- Mantra counts must be non-negative whole numbers.
+- Zero-count entries must be omitted. A count of zero means no practice entry.
+
+#### Stotra entries
+
+- Counts represent complete recitations.
+- A user may record multiple stotras on the same date.
+- Stotra counts must be non-negative whole numbers.
+- Zero-count entries must be omitted.
+
+#### Daily comments
+
+The user may add a comment or reflection to a daily record.
+
+Comments are optional and must not require a practice count.
+
+The application should preserve the distinction between:
+
+- A date with no practice record.
+- A date with practice records.
+- A date with a comment but no practice counts.
+
+#### Historical editing
+
+Daily mantra and stotra counts are editable only on the current device-local civil date.
+
+Once the device's local date changes at midnight, the previous day's counts become read-only.
+
+No grace period is provided.
+
+Historical count edits are not permitted.
+
+### 4.3 Dashboard
+
+The dashboard should provide a concise overview of the user's practice.
+
+It should include:
+
+- Current Gregorian date.
+- Today's recorded mantra activity.
+- Today's recorded stotra activity.
+- Today's comments, when available.
+- Ongoing Anushthans.
+- Relevant progress indicators.
+- Navigation to the calendar, practice library, and Anushthan sections.
+
+When no practice has been recorded for the current date, the dashboard must show an empty state rather than fabricated zero-count entries.
+
+### 4.4 Calendar and History
+
+The application must provide a monthly calendar.
+
+The calendar should allow the user to:
+
+- Navigate between months.
+- Inspect previous dates.
+- View recorded mantra activity.
+- View recorded stotra activity.
+- Identify dates with comments.
+- Open a selected date to inspect its details.
+
+Dates without records must remain empty.
+
+Historical records must remain accessible even when their associated practices are archived.
+
+### 4.5 Anushthan Management
+
+The user must be able to create and manage Anushthans.
+
+#### Creation
+
+An Anushthan must contain:
+
+- Name or title.
+- Start date.
+- End date.
+- One or more selected mantra/stotra components.
+- Independent target quantities for each selected component.
+
+The user may create:
+
+- A mantra-only Anushthan.
+- A stotra-only Anushthan.
+- An Anushthan containing both.
+
+Archived practices cannot be selected.
+
+#### Date rules
+
+- Start and end dates are inclusive.
+- The start date cannot be in the future.
+- The Anushthan may start today or on an earlier date.
+- The end date must not precede the start date.
+
+#### Target rules
+
+- Mantra targets are expressed in whole malas.
+- Stotra targets are expressed in complete recitations.
+- Each component has its own independent target.
+- The Anushthan may be created even if its target has already been achieved by the time of creation.
+- The application must represent actual achievement accurately, including cases where actual counts exceed the target.
+
+Visual progress indicators may be capped at 100%, but actual counts and achievement information must remain accurate.
+
+#### Target distribution
+
+Targets should be distributed as evenly as possible across the inclusive Anushthan date range.
+
+For mantra targets, distribution must use whole malas.
+
+Example:
+
+A target of 100 malas over 3 days should be distributed as:
+
+- Day 1: 34 malas.
+- Day 2: 33 malas.
+- Day 3: 33 malas.
+
+Stotra targets are distributed independently using complete recitation counts.
+
+#### Ongoing Anushthans
+
+- A new Anushthan cannot be started while another Anushthan is ongoing.
+- Anushthan components are tracked independently.
+- A practice linked to an ongoing Anushthan cannot simultaneously be recorded as regular Upasana for the same date.
+- Different practices may have different associations on the same date.
+
+#### Immutability after start
+
+Once an Anushthan starts:
+
+- Targets cannot be edited.
+- Start date cannot be edited.
+- End date cannot be edited.
+- Its schedule remains fixed.
+
+The application must not silently recalculate targets or dates after the Anushthan starts.
+
+#### Ending an Anushthan
+
+When the end date has passed, the Anushthan remains available for review.
+
+The application must not automatically decide whether the Anushthan was completed successfully.
+
+The user must manually mark it as:
+
+- Completed.
+- Incomplete.
+
+The application must preserve the Anushthan's history and generate a final report showing target versus actual achievement.
+
+Ending an Anushthan must not delete its records.
+
+### 4.6 Anushthan History and Reports
+
+The user must be able to review previous Anushthans.
+
+Each final report should include:
+
+- Anushthan name.
+- Start date.
+- End date.
+- Selected mantra and stotra components.
+- Original targets.
+- Actual recorded quantities.
+- Achievement information.
+- User-selected outcome: Completed or Incomplete.
+
+Historical Anushthan records must remain accessible after completion or ending.
+
+### 4.7 Lifetime Statistics
+
+The application should provide an overview of accumulated practice.
+
+Potential statistics include:
+
+- Total mantra malas.
+- Total mantra repetitions, calculated using 108 repetitions per mala.
+- Total stotra recitations.
+- Practice history over time.
+- Anushthan participation and outcomes.
+- Individual mantra and stotra totals.
+
+Statistics must be derived from persisted records rather than separately maintained duplicate counters.
+
+### 4.8 Panchang
+
+Panchang integration is deferred from v1.
+
+For v1:
+
+- Use the regular Gregorian date.
+- Do not display unverified tithi information.
+- Do not display festival information derived from an unvalidated provider.
+
+Panchang may be considered in a future version after selecting and validating a reliable provider and appropriate regional convention.
+
+---
+
+## 5. Date and Time Requirements
+
+### 5.1 Practice Date
+
+The device's current timezone determines the civil date for a new practice record.
+
+The application must not force a fixed timezone such as `Asia/Kolkata`.
+
+### 5.2 Timezone Changes
+
+For v1, the practice date is calculated using the device timezone at the time the record is created.
+
+The resulting practice date must be stored with the record.
+
+Changing the device timezone later must not recalculate or shift existing practice dates.
+
+### 5.3 Historical Cutoff
+
+The current practice date is determined using the device's local date.
+
+When that date changes at local midnight, the previous date's mantra and stotra counts become read-only.
+
+The application must not provide a grace period for historical count editing.
+
+---
+
+## 6. Authentication and Authorization
+
+### 6.1 Authentication
+
+Supabase Auth will provide user authentication.
+
+The application must support:
+
+- Secure sign-in.
+- Persistent authenticated sessions.
+- Explicit sign-out.
+
+### 6.2 Session Behaviour
+
+Use the standard Supabase session lifecycle and token-refresh behaviour.
+
+The user remains signed in until:
+
+- They explicitly sign out.
+- Their session becomes invalid.
+
+No custom inactivity-based logout is required for v1.
+
+### 6.3 Data Privacy
+
+Personal practice records must be accessible only to their owner.
+
+PostgreSQL Row Level Security must enforce user-level data isolation.
+
+Authorization must be enforced server-side and at the database level, not only through UI restrictions.
+
+Secrets and service-role credentials must never be exposed to the browser.
+
+---
+
+## 7. Data Integrity and Business Rules
+
+The following rules must be enforced by the application and, where appropriate, by database constraints:
+
+1. One mala equals 108 repetitions.
+2. Mantra counts use whole malas.
+3. Stotra counts use complete recitations.
+4. Zero-count entries are omitted.
+5. A missing entry is not equivalent to an explicit zero-count entry.
+6. A practice cannot be recorded as both regular Upasana and Anushthan activity for the same date.
+7. A new Anushthan cannot start while another is ongoing.
+8. Anushthan start and end dates are inclusive.
+9. Anushthan start dates cannot be in the future.
+10. Anushthan targets and dates become immutable after the Anushthan starts.
+11. Archived practices cannot be selected for new Anushthans.
+12. Practices linked to ongoing Anushthans cannot be archived.
+13. Historical mantra and stotra counts cannot be edited after the local date changes.
+14. Ending an Anushthan must preserve its history.
+15. Anushthan outcomes are manually selected by the user.
+16. Statistics must be derived from source records to avoid inconsistent duplicate totals.
+17. User-owned data must be protected through database-level authorization.
+
+---
+
+## 8. Proposed Data Model
+
+The following is the proposed logical data model. Final columns, constraints, relationships, indexes, and migration definitions will be established during database design.
+
+| Entity                  | Responsibility                                              |
+| ----------------------- | ----------------------------------------------------------- |
+| `mantras`               | Mantra library and archive status                           |
+| `strotras`              | Stotra library and archive status                           |
+| `daily_logs`            | Daily date and shared comment/reflection                    |
+| `daily_mantra_entries`  | Daily mantra mala counts                                    |
+| `daily_strotra_entries` | Daily stotra recitation counts                              |
+| `anushthans`            | Anushthan metadata, dates, and outcome                      |
+| `anushthan_mantras`     | Mantra components and targets                               |
+| `anushthan_strotras`    | Stotra components and targets                               |
+| User/settings data      | User-specific preferences and configuration, where required |
+
+Supabase Auth owns authentication identities. Application records must be associated with the authenticated user.
+
+The logical model is not yet a completed database implementation.
+
+---
+
+## 9. Non-Functional Requirements
+
+### 9.1 Usability
+
+- Mobile-first responsive design.
+- Clear navigation.
+- Minimal friction when recording daily practice.
+- Readable counts and progress information.
+- Clear empty, loading, success, and error states.
+
+### 9.2 Performance
+
+- Avoid unnecessary database requests.
+- Use efficient queries and indexes.
+- Keep dashboard and calendar interactions responsive.
+- Avoid loading unrelated historical data when it is not required.
+
+### 9.3 Security
+
+- Use Supabase Auth.
+- Enforce Row Level Security.
+- Validate input on the server.
+- Protect private user records.
+- Keep privileged credentials server-side.
+
+### 9.4 Maintainability
+
+- Use feature-oriented architecture.
+- Separate UI, business logic, and data-access responsibilities.
+- Keep validation and domain rules reusable.
+- Maintain database changes through version-controlled migrations.
+- Use TypeScript for domain and application types.
+
+### 9.5 Testability
+
+- Unit tests for business rules and calculations.
+- Integration tests for data-access behaviour.
+- End-to-end tests for important user workflows.
+- Test date boundaries, Anushthan calculations, and access restrictions.
+
+---
+
+## 10. Development and Testing Principles
+
+- Build features incrementally.
+- Finalize the database schema before implementing persistent feature workflows.
+- Use real Supabase queries for application data.
+- Keep sample data isolated from genuine personal practice records.
+- Seed and clean development/test records through repeatable scripts.
+- Preserve database schema and migrations when cleaning sample data.
+- Do not use production personal records as test fixtures.
+- Add authentication and RLS before genuine personal use.
+
+---
+
+## 11. Out of Scope for v1
+
+- Panchang and tithi integration.
+- Festival calculations and notifications.
+- Advanced timezone reconciliation for travel.
+- Automatic Anushthan completion decisions.
+- Editing Anushthan targets or dates after start.
+- Historical daily count editing.
+- Social features or public sharing.
+
+These may be considered for future versions.
+
+---
+
+## 12. Open Requirements Status
+
+All 12 requirements previously identified as unresolved have been decided.
+
+| #   | Requirement                        | Decision                                 |
+| --- | ---------------------------------- | ---------------------------------------- |
+| 1   | Inclusive Anushthan dates          | Start and end dates are inclusive.       |
+| 2   | Future Anushthan start             | Not allowed.                             |
+| 3   | Already-achieved target            | Creation is allowed.                     |
+| 4   | Zero-count entries                 | Omitted; zero means no practice entry.   |
+| 5   | Practice timezone                  | Device's current timezone.               |
+| 6   | Timezone changes                   | Freeze practice date at record creation. |
+| 7   | Historical cutoff                  | Local midnight, with no grace period.    |
+| 8   | Panchang                           | Deferred from v1.                        |
+| 9   | Archived practice selection        | Not allowed for new Anushthans.          |
+| 10  | Archiving during ongoing Anushthan | Blocked.                                 |
+| 11  | Session policy                     | Standard Supabase session lifecycle.     |
+| 12  | Editing started Anushthan          | Targets and dates locked.                |
+
+**Requirements status: Finalized.**
+
+---
+
+## 13. Current Project Status
+
+### Completed
+
+- Next.js application initialized.
+- TypeScript and Tailwind CSS configured.
+- Local development environment working.
+- Initial dashboard structure created.
+- Custom SVG icon components created.
+- Initial Anushthan dashboard UI explored using mock data.
+
+### In Progress
+
+- Final dashboard UI refinement.
+- SRS and README alignment.
+- Database schema design.
+
+### Not Yet Implemented
+
+- Supabase database schema and migrations.
+- Persistent application data.
+- Supabase Auth integration.
+- PostgreSQL RLS policies.
+- Practice library CRUD.
+- Daily practice persistence.
+- Calendar and historical records.
+- Anushthan creation and lifecycle.
+- Reports and lifetime statistics.
+- Automated test coverage.
+
+---
+
+## 14. Document History
+
+| Version | Date       | Changes                                                                      |
+| ------- | ---------- | ---------------------------------------------------------------------------- |
+| 0.3.0   | 2026-11-05 | Requirements finalization draft with unresolved questions.                   |
+| 0.4.0   | 2026-11-10 | Resolved all 12 open requirements and finalized v1 scope and business rules. |
 
 - Creation workflow.
 - Practice mappings.
