@@ -2,8 +2,8 @@
 
 ## Sadhana Tracker
 
-**Document Version:** 0.3.0  
-**Last Updated:** 2026-11-05  
+**Document Version:** 0.3.0
+**Last Updated:** 2026-11-05
 **Status:** Draft — Requirements Finalization
 
 ---
@@ -349,7 +349,7 @@ The distribution uses whole-number quantities.
 
 Example:
 
-Target: 100 malas  
+Target: 100 malas
 Duration: 3 days
 
 | Day   | Recommended malas |
@@ -386,12 +386,12 @@ After a daily entry is successfully saved:
 
 Example:
 
-Original target: 100 malas  
+Original target: 100 malas
 Original duration: 10 days
 
 Suppose 35 malas are completed on Day 1.
 
-Remaining target: 65 malas  
+Remaining target: 65 malas
 Remaining days: 9
 
 The application redistributes the remaining 65 malas across those nine days.
@@ -991,8 +991,8 @@ These questions must be resolved before the affected features are finalized.
 
 ### Milestone 7 — Anushthan# Sadhana Tracker — Software Requirements Specification
 
-**Version:** 0.4.0  
-**Last Updated:** 2026-11-10  
+**Version:** 0.4.0
+**Last Updated:** 2026-11-10
 **Status:** Requirements Finalized — Ready for Database Design
 
 ---
